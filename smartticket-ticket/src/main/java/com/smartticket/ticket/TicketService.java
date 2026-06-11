@@ -1,0 +1,62 @@
+package com.smartticket.ticket;
+
+import com.smartticket.common.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class TicketService {
+    private final JdbcTemplate jdbc;
+
+    @Transactional
+    public Map<String, Object> create(Long userId, String title, String content) {
+        String ticketNo = "TK" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        jdbc.update("INSERT INTO ticket (ticket_no, user_id, title, content, status) VALUES (?,?,?,?,?)",
+            ticketNo, userId, title, content, TicketStatus.CREATED.name());
+        Long id = jdbc.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
+        logFlow(id, null, TicketStatus.CREATED, "USER", userId, "用户提交工单");
+        return Map.of("id", id, "ticketNo", ticketNo);
+    }
+
+    public List<Map<String, Object>> list(Long userId, String role, int page, int size) {
+        int offset = (page - 1) * size;
+        if ("USER".equals(role)) {
+            return jdbc.queryForList("SELECT * FROM ticket WHERE user_id = ? ORDER BY created_at DESC LIMIT ?, ?", userId, offset, size);
+        }
+        return jdbc.queryForList("SELECT * FROM ticket ORDER BY created_at DESC LIMIT ?, ?", offset, size);
+    }
+
+    public Map<String, Object> detail(Long id) {
+        return jdbc.queryForMap("SELECT * FROM ticket WHERE id = ?", id);
+    }
+
+    @Transactional
+    public void transition(Long ticketId, TicketStatus to, String operatorType, Long operatorId, String remark) {
+        String fromStatus = jdbc.queryForObject("SELECT status FROM ticket WHERE id = ?", String.class, ticketId);
+        TicketStatus from = TicketStatus.valueOf(fromStatus);
+        if (!TicketStateMachine.canTransit(from, to))
+            throw new BizException(400, "非法状态流转: " + from + " -> " + to);
+        jdbc.update("UPDATE ticket SET status = ?, updated_at = NOW() WHERE id = ?", to.name(), ticketId);
+        logFlow(ticketId, from, to, operatorType, operatorId, remark);
+    }
+
+    @Transactional
+    public void close(Long id, Long userId) {
+        transition(id, TicketStatus.CLOSED, "USER", userId, "用户关闭工单");
+    }
+
+    public List<Map<String, Object>> flowLogs(Long ticketId) {
+        return jdbc.queryForList("SELECT * FROM ticket_flow_log WHERE ticket_id = ? ORDER BY created_at", ticketId);
+    }
+
+    private void logFlow(Long ticketId, TicketStatus from, TicketStatus to, String operatorType, Long operatorId, String remark) {
+        jdbc.update("INSERT INTO ticket_flow_log (ticket_id, from_status, to_status, operator_type, operator_id, remark) VALUES (?,?,?,?,?,?)",
+            ticketId, from == null ? null : from.name(), to.name(), operatorType, operatorId, remark);
+    }
+}

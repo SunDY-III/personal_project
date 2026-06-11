@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: smartticket-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: smartticket
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docs/03_mysql_schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  redis:
+    image: redis:7
+    container_name: smartticket-redis
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: smartticket-postgres
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: smartticket_vector
+    ports:
+      - "5432:5432"
+
+  minio:
+    image: minio/minio
+    container_name: smartticket-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  # === 可选：Elasticsearch（P1 选做，RAG 核心只需 pgvector）===
+  # 如果本地资源不足（内存 < 8GB），可以注释掉整个 elasticsearch 服务块
+  # 注释后 RAG 将仅使用 pgvector 向量检索，不影响核心功能
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    container_name: smartticket-es
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
