@@ -23,7 +23,13 @@ public class KnowledgeController {
     @PostMapping("/documents")
     public R<?> upload(@RequestParam("file") MultipartFile file, HttpServletRequest req) throws Exception {
         Long userId = (Long) req.getAttribute("userId");
-        String md5 = DigestUtils.md5DigestAsHex(file.getInputStream());
+        // 文件类型校验
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.matches(".*\\.(pdf|docx|txt|md)$"))
+            throw new com.smartticket.common.BizException(400, "仅支持 PDF/DOCX/TXT/MD 格式");
+        if (file.getSize() > 10 * 1024 * 1024)
+            throw new com.smartticket.common.BizException(400, "文件大小不能超过 10MB");
+        String md5 = org.springframework.util.DigestUtils.md5DigestAsHex(file.getInputStream());
         return R.ok(parseService.upload(file.getOriginalFilename(), file.getInputStream(), md5, userId));
     }
 

@@ -15,7 +15,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>SmartTicket</name>
-    <description>企业智能工单 Agent 平台</description>
+    <description>企业智能工单处理平台</description>
 
     <modules>
         <module>smartticket-common</module>

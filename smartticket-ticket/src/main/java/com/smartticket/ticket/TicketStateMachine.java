@@ -5,7 +5,7 @@ import java.util.*;
 
 public class TicketStateMachine {
     private static final Map<TicketStatus, Set<TicketStatus>> TRANSITIONS = Map.of(
-        TicketStatus.CREATED, Set.of(TicketStatus.ANALYZING),
+        TicketStatus.CREATED, Set.of(TicketStatus.ANALYZING, TicketStatus.CLOSED),
         TicketStatus.ANALYZING, Set.of(TicketStatus.RESOLVED, TicketStatus.WAITING_REVIEW, TicketStatus.FAILED),
         TicketStatus.WAITING_REVIEW, Set.of(TicketStatus.RESOLVED, TicketStatus.FAILED),
         TicketStatus.RESOLVED, Set.of(TicketStatus.CLOSED),

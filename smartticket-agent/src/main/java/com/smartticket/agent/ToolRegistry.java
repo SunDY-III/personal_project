@@ -13,7 +13,7 @@ public class ToolRegistry {
 
     public ToolRiskLevel getRiskLevel(String toolName) {
         var rows = jdbc.queryForList("SELECT risk_level FROM tool_definition WHERE tool_name = ? AND enabled = 1", toolName);
-        if (rows.isEmpty()) return ToolRiskLevel.LOW;
+        if (rows.isEmpty()) return ToolRiskLevel.HIGH;
         return ToolRiskLevel.valueOf((String) rows.get(0).get("risk_level"));
     }
 

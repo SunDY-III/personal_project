@@ -22,7 +22,7 @@ public class AgentTraceRecorder {
 
     @Transactional
     public void recordStep(String runId, String stepName, Object input, Object output, String status, long durationMs) {
-        jdbc.update("INSERT INTO agent_step (run_id, step_name, input_data, output_data, status, duration_ms) VALUES (?,?,?::json,?::json,?,?)",
+        jdbc.update("INSERT INTO agent_step (run_id, step_name, input_data, output_data, status, duration_ms) VALUES (?,?,?,?,?,?)",
             runId, stepName, toJson(input), toJson(output), status, durationMs);
     }
 
@@ -34,7 +34,7 @@ public class AgentTraceRecorder {
 
     @Transactional
     public void logToolCall(Long ticketId, String runId, String toolName, Object params, Object result, String status, long durationMs) {
-        jdbc.update("INSERT INTO tool_call_log (ticket_id, run_id, tool_name, request_params, response_data, status, duration_ms) VALUES (?,?,?,?::json,?::json,?,?)",
+        jdbc.update("INSERT INTO tool_call_log (ticket_id, run_id, tool_name, request_params, response_data, status, duration_ms) VALUES (?,?,?,?,?,?,?)",
             ticketId, runId, toolName, toJson(params), toJson(result), status, durationMs);
     }
 

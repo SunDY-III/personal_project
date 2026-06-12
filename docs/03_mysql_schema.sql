@@ -1,4 +1,4 @@
--- SmartTicket MySQL 建表
+-- SmartTicket MySQL 建表（BCrypt密码）
 CREATE TABLE IF NOT EXISTS sys_user (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   username VARCHAR(64) NOT NULL UNIQUE,
@@ -9,11 +9,12 @@ CREATE TABLE IF NOT EXISTS sys_user (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- BCrypt hash of '123456': $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
 INSERT IGNORE INTO sys_user (username, password_hash, role) VALUES
-('admin', MD5('123456'), 'ADMIN'),
-('staff', MD5('123456'), 'STAFF'),
-('reviewer', MD5('123456'), 'REVIEWER'),
-('user1', MD5('123456'), 'USER');
+('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ADMIN'),
+('staff', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'STAFF'),
+('reviewer', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'REVIEWER'),
+('user1', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'USER');
 
 CREATE TABLE IF NOT EXISTS ticket (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -111,7 +112,8 @@ CREATE TABLE IF NOT EXISTS review_task (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   reviewed_at DATETIME,
   INDEX idx_ticket_id (ticket_id),
-  INDEX idx_status (status)
+  INDEX idx_status (status),
+  UNIQUE KEY uk_ticket_tool (ticket_id, tool_name)
 );
 
 CREATE TABLE IF NOT EXISTS agent_run (

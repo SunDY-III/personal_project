@@ -30,18 +30,21 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
-    public R<Map<String, Object>> detail(@PathVariable Long id) {
-        return R.ok(ticketService.detail(id));
+    public R<Map<String, Object>> detail(@PathVariable Long id,
+            @RequestAttribute("userId") Long userId, @RequestAttribute("role") String role) {
+        return R.ok(ticketService.detail(id, userId, role));
     }
 
     @PostMapping("/{id}/close")
-    public R<?> close(@PathVariable Long id, @RequestAttribute("userId") Long userId) {
-        ticketService.close(id, userId);
+    public R<?> close(@PathVariable Long id,
+            @RequestAttribute("userId") Long userId, @RequestAttribute("role") String role) {
+        ticketService.close(id, userId, role);
         return R.ok();
     }
 
     @GetMapping("/{id}/flow-logs")
-    public R<List<Map<String, Object>>> flowLogs(@PathVariable Long id) {
-        return R.ok(ticketService.flowLogs(id));
+    public R<List<Map<String, Object>>> flowLogs(@PathVariable Long id,
+            @RequestAttribute("userId") Long userId, @RequestAttribute("role") String role) {
+        return R.ok(ticketService.flowLogs(id, userId, role));
     }
 }

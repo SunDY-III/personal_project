@@ -23,6 +23,13 @@ public class ToolRiskGuard {
 
     public ToolResult execute(String toolName, Map<String, Object> params, Long ticketId, String runId) {
         long start = System.currentTimeMillis();
+
+        // 检查工具是否启用
+        if (!toolRegistry.isEnabled(toolName)) {
+            traceRecorder.logToolCall(ticketId, runId, toolName, params, "TOOL_DISABLED", "REJECTED", System.currentTimeMillis() - start);
+            return new ToolResult("工具不可用：" + toolName, false, false);
+        }
+
         ToolRiskLevel risk = toolRegistry.getRiskLevel(toolName);
 
         // 检查缓存

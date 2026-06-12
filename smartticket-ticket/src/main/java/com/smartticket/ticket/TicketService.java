@@ -32,7 +32,8 @@ public class TicketService {
         return jdbc.queryForList("SELECT * FROM ticket ORDER BY created_at DESC LIMIT ?, ?", offset, size);
     }
 
-    public Map<String, Object> detail(Long id) {
+    public Map<String, Object> detail(Long id, Long userId, String role) {
+        if ("USER".equals(role)) checkOwnership(id, userId);
         return jdbc.queryForMap("SELECT * FROM ticket WHERE id = ?", id);
     }
 
@@ -47,12 +48,20 @@ public class TicketService {
     }
 
     @Transactional
-    public void close(Long id, Long userId) {
-        transition(id, TicketStatus.CLOSED, "USER", userId, "用户关闭工单");
+    public void close(Long id, Long userId, String role) {
+        if ("USER".equals(role)) checkOwnership(id, userId);
+        transition(id, TicketStatus.CLOSED, role, userId, "关闭工单");
     }
 
-    public List<Map<String, Object>> flowLogs(Long ticketId) {
+    public List<Map<String, Object>> flowLogs(Long ticketId, Long userId, String role) {
+        if ("USER".equals(role)) checkOwnership(ticketId, userId);
         return jdbc.queryForList("SELECT * FROM ticket_flow_log WHERE ticket_id = ? ORDER BY created_at", ticketId);
+    }
+
+    private void checkOwnership(Long ticketId, Long userId) {
+        Integer count = jdbc.queryForObject(
+            "SELECT COUNT(*) FROM ticket WHERE id = ? AND user_id = ?", Integer.class, ticketId, userId);
+        if (count == null || count == 0) throw new com.smartticket.common.BizException(403, "无权查看该工单");
     }
 
     private void logFlow(Long ticketId, TicketStatus from, TicketStatus to, String operatorType, Long operatorId, String remark) {
