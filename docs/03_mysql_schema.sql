@@ -18,7 +18,7 @@ INSERT IGNORE INTO sys_user (username, password_hash, role) VALUES
 
 CREATE TABLE IF NOT EXISTS ticket (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  ticket_no VARCHAR(64) NOT NULL UNIQUE,
+  ticket_no VARCHAR(128) NOT NULL UNIQUE,
   user_id BIGINT NOT NULL,
   title VARCHAR(256) NOT NULL,
   content TEXT NOT NULL,
@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS review_task (
   ticket_id BIGINT NOT NULL,
   tool_name VARCHAR(128) NOT NULL,
   request_params JSON,
+  request_hash VARCHAR(64) NOT NULL,
   risk_level VARCHAR(32) NOT NULL DEFAULT 'MEDIUM',
   status VARCHAR(32) NOT NULL DEFAULT 'PENDING',
   reviewer_id BIGINT,
@@ -115,7 +116,7 @@ CREATE TABLE IF NOT EXISTS review_task (
   reviewed_at DATETIME,
   INDEX idx_ticket_id (ticket_id),
   INDEX idx_status (status),
-  UNIQUE KEY uk_ticket_tool (ticket_id, tool_name)
+  UNIQUE KEY uk_ticket_tool_hash (ticket_id, tool_name, request_hash)
 );
 
 CREATE TABLE IF NOT EXISTS agent_run (

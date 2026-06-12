@@ -4,20 +4,22 @@ import com.smartticket.common.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.security.SecureRandom;
 import java.util.*;
 
 @Service
 public class TicketService {
     private final JdbcTemplate jdbc;
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     public TicketService(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
 
     @Transactional
     public Map<String, Object> create(Long userId, String title, String content) {
-        String ticketNo = "TK" + System.currentTimeMillis() + String.format("%04d", new java.util.Random().nextInt(10000));
+        // 毫秒时间戳 + 纳秒 + 4位随机数
+        String ticketNo = "TK" + System.currentTimeMillis() + System.nanoTime() % 10000 + String.format("%04d", RANDOM.nextInt(10000));
         jdbc.update("INSERT INTO ticket (ticket_no, user_id, title, content, status) VALUES (?,?,?,?,?)",
             ticketNo, userId, title, content, TicketStatus.CREATED.name());
         Long id = jdbc.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
@@ -62,7 +64,7 @@ public class TicketService {
     private void checkOwnership(Long ticketId, Long userId) {
         Integer count = jdbc.queryForObject(
             "SELECT COUNT(*) FROM ticket WHERE id = ? AND user_id = ?", Integer.class, ticketId, userId);
-        if (count == null || count == 0) throw new com.smartticket.common.BizException(403, "无权查看该工单");
+        if (count == null || count == 0) throw new BizException(403, "无权查看该工单");
     }
 
     private void logFlow(Long ticketId, TicketStatus from, TicketStatus to, String operatorType, Long operatorId, String remark) {

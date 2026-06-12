@@ -1,15 +1,16 @@
 package com.smartticket.knowledge;
 
-import com.smartticket.common.R;
 import com.smartticket.cache.CacheService;
+import com.smartticket.common.BizException;
+import com.smartticket.common.R;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.tika.Tika;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.util.DigestUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.*;
 
@@ -20,6 +21,8 @@ public class KnowledgeController {
     private final EmbeddingService embeddingService;
     private final CacheService cache;
     private final JdbcTemplate jdbc;
+    private final Tika tika = new Tika();
+
     public KnowledgeController(DocumentParseService parseService, EmbeddingService embeddingService, CacheService cache, JdbcTemplate jdbc) {
         this.parseService = parseService;
         this.embeddingService = embeddingService;
@@ -32,13 +35,18 @@ public class KnowledgeController {
         Long userId = (Long) req.getAttribute("userId");
         String filename = file.getOriginalFilename();
         if (filename == null || !filename.matches(".*\\.(pdf|docx|txt|md)$"))
-            throw new com.smartticket.common.BizException(400, "仅支持 PDF/DOCX/TXT/MD 格式");
+            throw new BizException(400, "仅支持 PDF/DOCX/TXT/MD 格式");
         if (file.getSize() > 10 * 1024 * 1024)
-            throw new com.smartticket.common.BizException(400, "文件大小不能超过 10MB");
-        // 将字节缓存到内存，避免 InputStream 被消耗两次
+            throw new BizException(400, "文件大小不能超过 10MB");
+
+        // 校验真实 MIME 类型
+        String detectedType = tika.detect(file.getInputStream());
+        if (!detectedType.matches("(application/pdf|application/vnd\\.openxmlformats.*|text/plain|text/markdown|text/x-markdown)"))
+            throw new BizException(400, "文件类型校验失败，仅支持 PDF/DOCX/TXT/MD");
+
         byte[] fileBytes = file.getBytes();
         String md5 = DigestUtils.md5DigestAsHex(new ByteArrayInputStream(fileBytes));
-        return R.ok(parseService.upload(file.getOriginalFilename(), new ByteArrayInputStream(fileBytes), md5, userId));
+        return R.ok(parseService.upload(filename, new ByteArrayInputStream(fileBytes), md5, userId));
     }
 
     @GetMapping("/documents")

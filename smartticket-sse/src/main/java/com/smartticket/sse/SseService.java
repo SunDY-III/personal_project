@@ -2,7 +2,6 @@ package com.smartticket.sse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
@@ -26,8 +25,11 @@ public class SseService {
     public void send(Long ticketId, String event, String data) {
         SseEmitter emitter = emitters.get(ticketId);
         if (emitter != null) {
-            try { emitter.send(SseEmitter.event().name(event).data(data)); }
-            catch (IOException e) { emitters.remove(ticketId); }
+            try {
+                emitter.send(SseEmitter.event().name(event).data(data));
+            } catch (IOException e) {
+                emitters.remove(ticketId);
+            }
         }
     }
 

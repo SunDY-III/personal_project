@@ -26,6 +26,8 @@ services:
       POSTGRES_DB: smartticket_vector
     ports:
       - "5432:5432"
+    volumes:
+      - ./docs/04_pgvector_schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
   minio:
     image: minio/minio
@@ -38,9 +40,8 @@ services:
       - "9000:9000"
       - "9001:9001"
 
-  # === 可选：Elasticsearch（P1 选做，RAG 核心只需 pgvector）===
-  # 如果本地资源不足（内存 < 8GB），可以注释掉整个 elasticsearch 服务块
-  # 注释后 RAG 将仅使用 pgvector 向量检索，不影响核心功能
+  # Elasticsearch — 可选，核心 RAG 仅需 pgvector
+  # 若内存不足 (< 8GB)，注释 elasticsearch 块
   elasticsearch:
     image: elasticsearch:8.12.2
     container_name: smartticket-es
