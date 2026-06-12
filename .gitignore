@@ -7,3 +7,6 @@
 *.log
 .idea/
 *.iml
+
+# Environment secrets — never commit
+.env
