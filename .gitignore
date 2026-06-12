@@ -10,3 +10,4 @@
 
 # Environment secrets — never commit
 .env
+.vscode/
