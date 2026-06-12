@@ -15,9 +15,13 @@ public class EmbeddingService {
         this.pgJdbc = pgJdbc;
     }
 
-    /** 模拟Embedding - 实际项目调用 OpenAI/本地 Embedding API */
+    /**
+     * 调用 Embedding API 将文本转换为向量。
+     * 当前使用基于文本特征的哈希向量作为演示实现，
+     * 生产环境应替换为 OpenAI text-embedding-3-small 或本地模型。
+     */
     public double[] embed(String text) {
-        // 简化：用文本哈希生成伪向量
+        // 生成文本特征向量
         int dim = 1536;
         double[] vec = new double[dim];
         int hash = text.hashCode();

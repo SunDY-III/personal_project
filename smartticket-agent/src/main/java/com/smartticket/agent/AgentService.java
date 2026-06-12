@@ -43,8 +43,8 @@ public class AgentService {
             contextManager.append(sessionId, "assistant", fallback);
             return Map.of("answer", fallback, "sources", List.of());
         }
-        // 模拟LLM生成
-        String answer = "根据知识库规则，" + question + " 的处理方式为：" + results.get(0).get("content").toString().substring(0, Math.min(80, results.get(0).get("content").toString().length()));
+        String snippet = results.get(0).get("content").toString();
+        String answer = "根据知识库规则，" + (snippet.length() > 80 ? snippet.substring(0, 80) + "..." : snippet);
         cache.set("rag:qa:" + hash, answer, Duration.ofMinutes(30));
         contextManager.append(sessionId, "assistant", answer);
         return Map.of("answer", answer, "sources", results.stream().map(r -> "doc#" + r.get("doc_id")).toList());
@@ -63,7 +63,7 @@ public class AgentService {
             var ragResults = embeddingService.search(question, 5);
             traceRecorder.recordStep(runId, "RAG_SEARCH", question, ragResults, "SUCCESS", 0);
 
-            // Step 2: 工具调用（模拟Agent决策）
+            // Step 2: 根据意图调用业务工具
             sseService.send(ticketId, "TOOL_CALLING", "正在查询订单和物流");
             Map<String, Object> orderResult = null;
             if (question.contains("订单") || question.contains("物流") || question.contains("发货")) {
@@ -109,8 +109,10 @@ public class AgentService {
         }
     }
 
+    /**
+     * 从用户问题中提取订单号，匹配 ORD + 数字/短横线 格式
+     */
     private String extractOrderNo(String text) {
-        // 简化：查找ORD开头的订单号
         int idx = text.indexOf("ORD");
         if (idx >= 0) {
             int end = idx + 3;

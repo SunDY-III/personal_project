@@ -46,8 +46,8 @@ public class KnowledgeController {
             context.append(r.get("content")).append("\n");
             sources.add("doc#" + r.get("doc_id") + " chunk#" + r.get("chunk_id"));
         }
-        // 模拟LLM生成
-        String answer = "【基于知识库回答】" + results.get(0).get("content").toString().substring(0, Math.min(100, results.get(0).get("content").toString().length())) + "...";
+        String snippet = results.get(0).get("content").toString();
+        String answer = "根据知识库检索结果：" + (snippet.length() > 100 ? snippet.substring(0, 100) + "..." : snippet);
         cache.set("rag:qa:" + hash, answer, Duration.ofMinutes(30));
         return R.ok(Map.of("answer", answer, "sources", sources));
     }

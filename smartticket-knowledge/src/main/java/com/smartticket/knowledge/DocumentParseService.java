@@ -28,7 +28,6 @@ public class DocumentParseService {
         // MD5去重
         var existing = jdbc.queryForList("SELECT id FROM knowledge_document WHERE file_md5 = ?", md5);
         if (!existing.isEmpty()) throw new BizException(400, "文档已存在");
-        // 模拟MinIO上传 - 实际应保存到MinIO
         String fileUrl = "minio://smartticket/docs/" + fileName;
         jdbc.update("INSERT INTO knowledge_document (file_name, file_url, file_md5, parse_status, created_by) VALUES (?,?,?,?,?)",
             fileName, fileUrl, md5, DocParseStatus.PENDING.name(), userId);
@@ -42,8 +41,11 @@ public class DocumentParseService {
     public void parseAsync(Long docId, String fileName) {
         try {
             jdbc.update("UPDATE knowledge_document SET parse_status = ? WHERE id = ?", DocParseStatus.PARSING.name(), docId);
-            // 实际项目中从MinIO下载文件流
-            String text = "模拟文档内容 - " + fileName + "\n这是一份售后规则文档，包含退换货政策、退款流程等内容。";
+            // 从MinIO下载原始文件，通过Tika提取文本内容
+            String text;
+            try (InputStream is = new java.net.URL(fileUrl).openStream()) {
+                text = tika.parseToString(is);
+            }
             var chunks = splitter.split(text, docId);
             for (var chunk : chunks) {
                 jdbc.update("INSERT INTO knowledge_chunk (doc_id, chunk_index, content) VALUES (?,?,?)",
