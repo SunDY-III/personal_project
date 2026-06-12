@@ -5,13 +5,11 @@ import com.smartticket.cache.CacheService;
 import com.smartticket.common.ToolRiskLevel;
 import com.smartticket.mock.*;
 import com.smartticket.review.ReviewService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.*;
 
 @Component
-@RequiredArgsConstructor
 public class ToolRiskGuard {
     private final ToolRegistry toolRegistry;
     private final ReviewService reviewService;
@@ -20,6 +18,15 @@ public class ToolRiskGuard {
     private final MockOrderService orderService;
     private final MockLogisticsService logisticsService;
     private final MockRefundService refundService;
+    public ToolRiskGuard(ToolRegistry toolRegistry, ReviewService reviewService, AgentTraceRecorder traceRecorder, CacheService cache, MockOrderService orderService, MockLogisticsService logisticsService, MockRefundService refundService) {
+        this.toolRegistry = toolRegistry;
+        this.reviewService = reviewService;
+        this.traceRecorder = traceRecorder;
+        this.cache = cache;
+        this.orderService = orderService;
+        this.logisticsService = logisticsService;
+        this.refundService = refundService;
+    }
 
     public ToolResult execute(String toolName, Map<String, Object> params, Long ticketId, String runId) {
         long start = System.currentTimeMillis();

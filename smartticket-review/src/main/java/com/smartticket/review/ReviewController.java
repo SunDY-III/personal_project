@@ -3,15 +3,16 @@ package com.smartticket.review;
 import com.smartticket.common.BizException;
 import com.smartticket.common.R;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/reviews")
-@RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
 
     @GetMapping
     public R<?> list(@RequestParam(defaultValue = "1") int page,

@@ -2,18 +2,20 @@ package com.smartticket.cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.*;
 
 @Component
-@RequiredArgsConstructor
 public class ContextManager {
     private final StringRedisTemplate redis;
     private final TokenEstimator tokenEstimator;
     private final ObjectMapper mapper = new ObjectMapper();
+    public ContextManager(StringRedisTemplate redis, TokenEstimator tokenEstimator) {
+        this.redis = redis;
+        this.tokenEstimator = tokenEstimator;
+    }
     private static final int MAX_TOKENS = 3200; // 历史对话预算
     private static final int RECENT_ROUNDS = 3;
 

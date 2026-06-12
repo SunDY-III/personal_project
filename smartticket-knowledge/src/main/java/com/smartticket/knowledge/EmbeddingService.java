@@ -1,12 +1,13 @@
 package com.smartticket.knowledge;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class EmbeddingService {
+    private static final Logger log = LoggerFactory.getLogger(EmbeddingService.class);
     private final JdbcTemplate jdbc;
     private final JdbcTemplate pgJdbc; // pgvector
 

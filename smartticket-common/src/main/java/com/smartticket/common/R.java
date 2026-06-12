@@ -1,14 +1,17 @@
 package com.smartticket.common;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
 
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class R<T> {
     private int code;
     private String msg;
     private T data;
+
+    public int getCode() { return code; }
+    public void setCode(int code) { this.code = code; }
+    public String getMsg() { return msg; }
+    public void setMsg(String msg) { this.msg = msg; }
+    public T getData() { return data; }
+    public void setData(T data) { this.data = data; }
 
     public static <T> R<T> ok(T data) { R<T> r = new R<>(); r.code = 200; r.msg = "success"; r.data = data; return r; }
     public static <T> R<T> ok() { return ok(null); }

@@ -1,30 +1,36 @@
 package com.smartticket.knowledge;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.smartticket.common.DocParseStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class DocumentParseTaskService {
+    private static final Logger log = LoggerFactory.getLogger(DocumentParseTaskService.class);
     private final JdbcTemplate jdbc;
     private final Tika tika = new Tika();
     private final OverlapTextSplitter splitter = new OverlapTextSplitter();
     private final EmbeddingService embeddingService;
+    public DocumentParseTaskService(JdbcTemplate jdbc, EmbeddingService embeddingService) {
+        this.jdbc = jdbc;
+        this.embeddingService = embeddingService;
+    }
 
     @Async("documentParseExecutor")
-    public void parseAsync(Long docId, String fileName) {
+    public void parseAsync(Long docId, String fileName, byte[] fileBytes) {
         try {
             jdbc.update("UPDATE knowledge_document SET parse_status = ? WHERE id = ?",
                 DocParseStatus.PARSING.name(), docId);
             String text;
-            try (InputStream is = new java.net.URL("minio://smartticket/docs/" + fileName).openStream()) {
+            try (InputStream is = new ByteArrayInputStream(fileBytes)) {
                 text = tika.parseToString(is);
             }
             var chunks = splitter.split(text, docId);

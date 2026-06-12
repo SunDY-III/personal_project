@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS review_task (
   ticket_id BIGINT NOT NULL,
   tool_name VARCHAR(128) NOT NULL,
   request_params JSON,
+  risk_level VARCHAR(32) NOT NULL DEFAULT 'MEDIUM',
   status VARCHAR(32) NOT NULL DEFAULT 'PENDING',
   reviewer_id BIGINT,
   review_comment VARCHAR(512),

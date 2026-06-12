@@ -3,15 +3,16 @@ package com.smartticket.audit;
 import com.smartticket.common.BizException;
 import com.smartticket.common.R;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/agent/runs")
-@RequiredArgsConstructor
 public class AuditController {
     private final AgentTraceRecorder traceRecorder;
+    public AuditController(AgentTraceRecorder traceRecorder) {
+        this.traceRecorder = traceRecorder;
+    }
 
     @GetMapping
     public R<?> list(@RequestAttribute("role") String role,

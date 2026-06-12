@@ -1,16 +1,17 @@
 package com.smartticket.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
 
 @Component
-@RequiredArgsConstructor
 public class CacheService {
     private final StringRedisTemplate redis;
     private final ObjectMapper mapper = new ObjectMapper();
+    public CacheService(StringRedisTemplate redis) {
+        this.redis = redis;
+    }
 
     public String get(String key) { return redis.opsForValue().get(key); }
 

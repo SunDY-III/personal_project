@@ -12,14 +12,18 @@
     <artifactId>smartticket-agent</artifactId>
     
     <dependencies>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
-        <dependency><groupId>org.projectlombok</groupId><artifactId>lombok</artifactId><optional>true</optional></dependency>
-        <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency>
-    </dependencies>
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>        <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency>
+        <dependency><groupId>com.baomidou</groupId><artifactId>mybatis-plus-spring-boot3-starter</artifactId></dependency>
+        <dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId></dependency>
         <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-common</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
         <dependency><groupId>dev.langchain4j</groupId><artifactId>langchain4j-spring-boot-starter</artifactId></dependency>
         <dependency><groupId>dev.langchain4j</groupId><artifactId>langchain4j-open-ai-spring-boot-starter</artifactId></dependency>
         <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-knowledge</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
+        <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-ticket</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
+        <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-review</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
+        <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-audit</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
+        <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-sse</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
         <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-mock</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
         <dependency><groupId>com.smartticket</groupId><artifactId>smartticket-cache</artifactId><version>1.0.0-SNAPSHOT</version></dependency>
+    </dependencies>
 </project>

@@ -1,5 +1,8 @@
 package com.smartticket.agent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.smartticket.audit.AgentTraceRecorder;
 import com.smartticket.cache.*;
 import com.smartticket.common.*;
@@ -7,18 +10,15 @@ import com.smartticket.knowledge.EmbeddingService;
 import com.smartticket.review.ReviewService;
 import com.smartticket.sse.SseService;
 import com.smartticket.ticket.TicketService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class AgentService {
+    private static final Logger log = LoggerFactory.getLogger(AgentService.class);
     private final JdbcTemplate jdbc;
     private final EmbeddingService embeddingService;
     private final ToolRiskGuard toolGuard;
@@ -28,6 +28,17 @@ public class AgentService {
     private final ContextManager contextManager;
     private final CacheService cache;
     private final ReviewService reviewService;
+    public AgentService(JdbcTemplate jdbc, EmbeddingService embeddingService, ToolRiskGuard toolGuard, AgentTraceRecorder traceRecorder, TicketService ticketService, SseService sseService, ContextManager contextManager, CacheService cache, ReviewService reviewService) {
+        this.jdbc = jdbc;
+        this.embeddingService = embeddingService;
+        this.toolGuard = toolGuard;
+        this.traceRecorder = traceRecorder;
+        this.ticketService = ticketService;
+        this.sseService = sseService;
+        this.contextManager = contextManager;
+        this.cache = cache;
+        this.reviewService = reviewService;
+    }
 
     /** 同步问答（chat模式，不创建工单） */
     public Map<String, Object> chat(String sessionId, String question) {
@@ -51,7 +62,7 @@ public class AgentService {
     }
 
     /** 异步Agent分析工单 */
-    @Async
+    @Async("agentExecutor")
     public void analyzeTicket(Long ticketId, String question, Long userId) {
         String runId = traceRecorder.startRun(ticketId, userId, question);
         try {

@@ -3,16 +3,18 @@ package com.smartticket.agent;
 import com.smartticket.common.R;
 import com.smartticket.ticket.TicketService;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/agent")
-@RequiredArgsConstructor
 public class AgentController {
     private final AgentService agentService;
     private final TicketService ticketService;
+    public AgentController(AgentService agentService, TicketService ticketService) {
+        this.agentService = agentService;
+        this.ticketService = ticketService;
+    }
 
     @PostMapping("/chat")
     public R<?> chat(@RequestBody Map<String, String> body) {

@@ -2,15 +2,16 @@ package com.smartticket.ticket;
 
 import com.smartticket.common.R;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/tickets")
-@RequiredArgsConstructor
 public class TicketController {
     private final TicketService ticketService;
+    public TicketController(TicketService ticketService) {
+        this.ticketService = ticketService;
+    }
 
     @PostMapping
     public R<Map<String, Object>> create(@RequestBody Map<String, Object> body, HttpServletRequest req) {

@@ -1,7 +1,6 @@
 package com.smartticket.auth;
 
 import com.smartticket.common.BizException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,11 +8,14 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
     private final JdbcTemplate jdbc;
     private final JwtUtils jwtUtils;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    public AuthService(JdbcTemplate jdbc, JwtUtils jwtUtils) {
+        this.jdbc = jdbc;
+        this.jwtUtils = jwtUtils;
+    }
 
     public String login(String username, String password) {
         if (username == null || password == null) throw new BizException(400, "用户名密码不能为空");

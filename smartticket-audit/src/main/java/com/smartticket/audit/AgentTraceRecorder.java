@@ -1,6 +1,5 @@
 package com.smartticket.audit;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,9 +7,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class AgentTraceRecorder {
     private final JdbcTemplate jdbc;
+    public AgentTraceRecorder(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     @Transactional
     public String startRun(Long ticketId, Long userId, String input) {

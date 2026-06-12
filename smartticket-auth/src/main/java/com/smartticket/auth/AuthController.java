@@ -1,16 +1,17 @@
 package com.smartticket.auth;
 
 import com.smartticket.common.R;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
     public R<Map<String, String>> login(@RequestBody Map<String, String> body) {

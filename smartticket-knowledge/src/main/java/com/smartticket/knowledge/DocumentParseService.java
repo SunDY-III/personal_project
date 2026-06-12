@@ -1,30 +1,40 @@
 package com.smartticket.knowledge;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.smartticket.common.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.InputStream;
 import java.util.Map;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class DocumentParseService {
+    private static final Logger log = LoggerFactory.getLogger(DocumentParseService.class);
     private final JdbcTemplate jdbc;
     private final DocumentParseTaskService parseTaskService;
+    public DocumentParseService(JdbcTemplate jdbc, DocumentParseTaskService parseTaskService) {
+        this.jdbc = jdbc;
+        this.parseTaskService = parseTaskService;
+    }
 
     @Transactional
     public Map<String, Object> upload(String fileName, InputStream inputStream, String md5, Long userId) {
         var existing = jdbc.queryForList("SELECT id FROM knowledge_document WHERE file_md5 = ?", md5);
         if (!existing.isEmpty()) throw new BizException(400, "文档已存在");
-        String fileUrl = "minio://smartticket/docs/" + fileName;
+        String fileUrl = "/docs/" + fileName;
         jdbc.update("INSERT INTO knowledge_document (file_name, file_url, file_md5, parse_status, created_by) VALUES (?,?,?,?,?)",
             fileName, fileUrl, md5, DocParseStatus.PENDING.name(), userId);
         Long docId = jdbc.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
-        parseTaskService.parseAsync(docId, fileName);
+        // 将文件内容读入内存后异步解析（避免 InputStream 生命周期问题）
+        try {
+            byte[] bytes = inputStream.readAllBytes();
+            parseTaskService.parseAsync(docId, fileName, bytes);
+        } catch (Exception e) {
+            throw new BizException(500, "读取文件失败: " + e.getMessage());
+        }
         return Map.of("docId", docId, "status", "PENDING");
     }
 

@@ -1,16 +1,17 @@
 package com.smartticket.review;
 
 import com.smartticket.common.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class ReviewService {
     private final JdbcTemplate jdbc;
+    public ReviewService(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     @Transactional
     public Long create(Long ticketId, String toolName, String params, String riskLevel) {

@@ -1,15 +1,16 @@
 package com.smartticket.agent;
 
 import com.smartticket.common.ToolRiskLevel;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-@RequiredArgsConstructor
 public class ToolRegistry {
     private final JdbcTemplate jdbc;
+    public ToolRegistry(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     public ToolRiskLevel getRiskLevel(String toolName) {
         var rows = jdbc.queryForList("SELECT risk_level FROM tool_definition WHERE tool_name = ? AND enabled = 1", toolName);

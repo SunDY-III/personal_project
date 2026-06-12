@@ -1,7 +1,6 @@
 package com.smartticket.ticket;
 
 import com.smartticket.common.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,9 +9,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class TicketService {
     private final JdbcTemplate jdbc;
+    public TicketService(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     @Transactional
     public Map<String, Object> create(Long userId, String title, String content) {
