@@ -21,8 +21,9 @@ public class ReviewService {
 
     @Transactional
     public void approve(Long reviewId, Long reviewerId, String comment) {
-        jdbc.update("UPDATE review_task SET status = ?, reviewer_id = ?, review_comment = ?, reviewed_at = NOW() WHERE id = ?",
+        int updated = jdbc.update("UPDATE review_task SET status = ?, reviewer_id = ?, review_comment = ?, reviewed_at = NOW() WHERE id = ? AND status = 'PENDING'",
             ReviewStatus.APPROVED.name(), reviewerId, comment, reviewId);
+        if (updated == 0) throw new com.smartticket.common.BizException(400, "审核任务不存在或已处理");
 
         // 驱动工单状态
         var task = jdbc.queryForMap("SELECT ticket_id, tool_name FROM review_task WHERE id = ?", reviewId);
@@ -42,8 +43,9 @@ public class ReviewService {
 
     @Transactional
     public void reject(Long reviewId, Long reviewerId, String comment) {
-        jdbc.update("UPDATE review_task SET status = ?, reviewer_id = ?, review_comment = ?, reviewed_at = NOW() WHERE id = ?",
+        int updated = jdbc.update("UPDATE review_task SET status = ?, reviewer_id = ?, review_comment = ?, reviewed_at = NOW() WHERE id = ? AND status = 'PENDING'",
             ReviewStatus.REJECTED.name(), reviewerId, comment, reviewId);
+        if (updated == 0) throw new com.smartticket.common.BizException(400, "审核任务不存在或已处理");
 
         var task = jdbc.queryForMap("SELECT ticket_id FROM review_task WHERE id = ?", reviewId);
         Long ticketId = ((Number) task.get("ticket_id")).longValue();

@@ -62,7 +62,6 @@ public class AgentTraceRecorder {
     }
 
     private String toJson(Object obj) {
-        if (obj instanceof String s) return s;
         try { return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(obj); }
         catch (Exception e) { return "{}"; }
     }

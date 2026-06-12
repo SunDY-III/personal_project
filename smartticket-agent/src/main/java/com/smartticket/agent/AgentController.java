@@ -26,7 +26,8 @@ public class AgentController {
     @PostMapping("/analyze-ticket/{ticketId}")
     public R<?> analyze(@PathVariable Long ticketId, HttpServletRequest req) {
         Long userId = (Long) req.getAttribute("userId");
-        var ticket = ticketService.detail(ticketId);
+        String role = (String) req.getAttribute("role");
+        var ticket = ticketService.detail(ticketId, userId, role);
         agentService.analyzeTicket(ticketId, (String) ticket.get("content"), userId);
         return R.ok(Map.of("status", "ANALYZING"));
     }
