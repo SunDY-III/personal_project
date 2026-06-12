@@ -60,7 +60,8 @@ public class DocumentParseService {
             log.info("Document {} parsed successfully, {} chunks", docId, chunks.size());
         } catch (Exception e) {
             log.error("Document {} parse failed", docId, e);
-            jdbc.update("UPDATE knowledge_document SET parse_status = ? WHERE id = ?", DocParseStatus.FAILED.name(), docId);
+            jdbc.update("UPDATE knowledge_document SET parse_status = ?, error_message = ? WHERE id = ?",
+                DocParseStatus.FAILED.name(), e.getMessage(), docId);
         }
     }
 

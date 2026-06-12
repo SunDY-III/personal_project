@@ -16,7 +16,7 @@ public class TicketService {
 
     @Transactional
     public Map<String, Object> create(Long userId, String title, String content) {
-        String ticketNo = "TK" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String ticketNo = "TK" + System.currentTimeMillis() + String.format("%04d", new java.util.Random().nextInt(10000));
         jdbc.update("INSERT INTO ticket (ticket_no, user_id, title, content, status) VALUES (?,?,?,?,?)",
             ticketNo, userId, title, content, TicketStatus.CREATED.name());
         Long id = jdbc.queryForObject("SELECT LAST_INSERT_ID()", Long.class);

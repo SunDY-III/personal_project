@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS knowledge_document (
   file_url VARCHAR(512) NOT NULL,
   file_md5 VARCHAR(64),
   parse_status VARCHAR(32) NOT NULL DEFAULT 'PENDING',
+  error_message VARCHAR(512),
   created_by BIGINT NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_parse_status (parse_status),

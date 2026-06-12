@@ -1,6 +1,8 @@
 package com.smartticket.audit;
 
+import com.smartticket.common.BizException;
 import com.smartticket.common.R;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
@@ -12,8 +14,22 @@ public class AuditController {
     private final AgentTraceRecorder traceRecorder;
 
     @GetMapping
-    public R<?> list() { return R.ok(traceRecorder.getRuns()); }
+    public R<?> list(@RequestAttribute("role") String role,
+            @RequestAttribute(value = "userId", required = false) Long userId) {
+        checkAuditRole(role);
+        return R.ok(traceRecorder.getRunsByRole(role, userId));
+    }
 
     @GetMapping("/{runId}/steps")
-    public R<?> steps(@PathVariable String runId) { return R.ok(traceRecorder.getSteps(runId)); }
+    public R<?> steps(@PathVariable String runId,
+            @RequestAttribute("role") String role,
+            @RequestAttribute(value = "userId", required = false) Long userId) {
+        checkAuditRole(role);
+        return R.ok(traceRecorder.getStepsByRole(runId, role, userId));
+    }
+
+    private void checkAuditRole(String role) {
+        if (!"ADMIN".equals(role) && !"STAFF".equals(role))
+            throw new BizException(403, "无审计查看权限");
+    }
 }

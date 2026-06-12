@@ -39,11 +39,26 @@ public class AgentTraceRecorder {
     }
 
     public List<Map<String, Object>> getRuns() {
-        return jdbc.queryForList("SELECT * FROM agent_run ORDER BY started_at DESC LIMIT 20");
+        return jdbc.queryForList("SELECT id, run_id, ticket_id, user_id, status, started_at, ended_at FROM agent_run ORDER BY started_at DESC LIMIT 20");
+    }
+
+    public List<Map<String, Object>> getRunsByRole(String role, Long userId) {
+        if ("ADMIN".equals(role) || "STAFF".equals(role))
+            return getRuns();
+        return jdbc.queryForList("SELECT id, run_id, ticket_id, user_id, status, started_at, ended_at FROM agent_run WHERE user_id = ? ORDER BY started_at DESC LIMIT 20", userId);
     }
 
     public List<Map<String, Object>> getSteps(String runId) {
         return jdbc.queryForList("SELECT * FROM agent_step WHERE run_id = ? ORDER BY created_at", runId);
+    }
+
+    public List<Map<String, Object>> getStepsByRole(String runId, String role, Long userId) {
+        if ("ADMIN".equals(role) || "STAFF".equals(role))
+            return getSteps(runId);
+        // Verify user owns this run
+        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM agent_run WHERE run_id = ? AND user_id = ?", Integer.class, runId, userId);
+        if (count == null || count == 0) return List.of();
+        return getSteps(runId);
     }
 
     private String toJson(Object obj) {

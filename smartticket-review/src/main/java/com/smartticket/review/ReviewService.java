@@ -54,8 +54,9 @@ public class ReviewService {
             ticketId, TicketStatus.WAITING_REVIEW.name(), TicketStatus.FAILED.name(), "REVIEWER", reviewerId, "审核拒绝: " + comment);
     }
 
-    public List<Map<String, Object>> list() {
-        return jdbc.queryForList("SELECT * FROM review_task ORDER BY created_at DESC");
+    public List<Map<String, Object>> list(int page, int size) {
+        int offset = (page - 1) * size;
+        return jdbc.queryForList("SELECT id, ticket_id, tool_name, risk_level, status, reviewer_id, review_comment, created_at, reviewed_at FROM review_task ORDER BY created_at DESC LIMIT ?, ?", offset, size);
     }
 
     public Map<String, Object> detail(Long id) {

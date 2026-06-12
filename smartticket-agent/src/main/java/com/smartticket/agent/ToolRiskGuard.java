@@ -74,7 +74,13 @@ public class ToolRiskGuard {
             case "check_refund_policy" -> refundService.checkRefundPolicy((String) params.get("orderNo"), (String) params.get("reason"));
             case "create_ticket" -> Map.of("ticketId", params.getOrDefault("ticketId", 0), "status", "CREATED");
             case "create_refund" -> refundService.createRefund((String) params.get("orderNo"), ((Number) params.getOrDefault("amount", 0)).doubleValue(), (String) params.get("reason"));
-            case "issue_coupon" -> refundService.issueCoupon(((Number) params.get("userId")).longValue(), ((Number) params.getOrDefault("amount", 0)).doubleValue(), (String) params.get("reason"));
+            case "issue_coupon" -> {
+                Object uid = params.get("userId");
+                if (uid == null) throw new IllegalArgumentException("缺少参数 userId");
+                Object amt = params.getOrDefault("amount", 0);
+                yield refundService.issueCoupon(((Number) uid).longValue(),
+                    ((Number) amt).doubleValue(), (String) params.getOrDefault("reason", ""));
+            }
             default -> throw new IllegalArgumentException("Unknown tool: " + toolName);
         };
     }

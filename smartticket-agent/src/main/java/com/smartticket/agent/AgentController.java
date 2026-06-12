@@ -16,8 +16,11 @@ public class AgentController {
 
     @PostMapping("/chat")
     public R<?> chat(@RequestBody Map<String, String> body) {
+        String question = body.get("question");
+        if (question == null || question.isBlank())
+            throw new com.smartticket.common.BizException(400, "问题不能为空");
         String sessionId = body.getOrDefault("sessionId", "S" + System.currentTimeMillis());
-        return R.ok(agentService.chat(sessionId, body.get("question")));
+        return R.ok(agentService.chat(sessionId, question));
     }
 
     @PostMapping("/analyze-ticket/{ticketId}")
